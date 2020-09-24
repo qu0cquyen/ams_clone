@@ -23,3 +23,9 @@ class OnBoardingString {
   static const String policy2 = "and ";
   static const String terms = "Terms.";
 }
+
+class PromoPopUp {
+  static const String title = "Select your discount";
+  static const String hint_textBox = "Enter your discount vouncher";
+  static const String btn_apply = "Apply";
+}

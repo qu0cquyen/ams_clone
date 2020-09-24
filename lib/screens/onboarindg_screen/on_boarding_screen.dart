@@ -16,6 +16,7 @@ class OnBoardingScreen extends StatefulWidget {
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
   int numPage = 12;
   int _currentPage = 0;
+  int _maxAttempt = 2;
   final PageController _pageController = PageController(initialPage: 0);
   TextEditingController _phoneNumberController = TextEditingController();
 
@@ -83,33 +84,42 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     border: Border.all(width: 1),
                   ),
                   child: Row(children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      width: 50.0,
-                      child: Text(OnBoardingString.prefix_phone_number),
+                    Flexible(
+                      flex: 0,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        width: 50.0,
+                        child: Text(OnBoardingString.prefix_phone_number),
+                      ),
                     ),
                     Flexible(
-                      child: TextFormField(
-                        controller: _phoneNumberController,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter
-                              .digitsOnly, // Only numbers are allowed
-                          LengthLimitingTextInputFormatter(10),
-                          USNumberTextInputFormatter() // Limits input characters
-                        ],
-                        decoration: InputDecoration(
-                            hintText: OnBoardingString.hint_phone_number,
-                            border: InputBorder.none), // Clear underline
-                        autofocus: true,
-                        autovalidate: true,
-                        keyboardType: TextInputType.phone,
-                        validator: (_) => !state.isPhoneNumberValid &&
-                                _phoneNumberController.text.isNotEmpty
-                            ? 'Invalide Phone Number'
-                            : null,
-                        onChanged: (val) => context
-                            .bloc<OnBoardingBloc>()
-                            .add(PhoneNumberChanged(phoneNumber: val)),
+                      flex: 1,
+                      child: Container(
+                        child: TextFormField(
+                          controller: _phoneNumberController,
+                          inputFormatters: <TextInputFormatter>[
+                            WhitelistingTextInputFormatter
+                                .digitsOnly, // Only numbers are allowed
+                            LengthLimitingTextInputFormatter(10),
+                            USNumberTextInputFormatter() // Limits input characters
+                          ],
+                          decoration: InputDecoration(
+                              hintText: OnBoardingString.hint_phone_number,
+                              border: InputBorder.none), // Clear underline
+                          autofocus: true,
+                          autovalidate: true,
+                          keyboardType: TextInputType.phone,
+                          validator: (_) => !state.isPhoneNumberValid &&
+                                  _phoneNumberController.text.isNotEmpty
+                              ? 'Invalide Phone Number'
+                              : null,
+                          onChanged: (val) {
+                            print(val);
+                            context
+                                .bloc<OnBoardingBloc>()
+                                .add(PhoneNumberChanged(phoneNumber: val));
+                          },
+                        ),
                       ),
                     ),
                   ]),
@@ -118,7 +128,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Container(
-                  height: 40.0,
                   width: 200.0,
                   child: RaisedButton(
                     shape: RoundedRectangleBorder(
@@ -146,35 +155,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: Container(
-              width: 350.0,
-              child: RichText(
-                text: TextSpan(
-                    text: OnBoardingString.policy1,
-                    style: TextStyle(fontSize: 15.0, color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: OnBoardingString.private_policy,
-                          style: TextStyle(
-                              color: Colors.blue[800],
-                              fontWeight: FontWeight.bold),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => print('Privacy Policy')),
-                      TextSpan(
-                        text: OnBoardingString.policy2,
-                      ),
-                      TextSpan(
-                          text: OnBoardingString.terms,
-                          style: TextStyle(
-                              color: Colors.blue[800],
-                              fontWeight: FontWeight.bold),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => print('Term')),
-                    ]),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-              ),
+            child: RichText(
+              text: TextSpan(
+                  text: OnBoardingString.policy1,
+                  style: TextStyle(fontSize: 15.0, color: Colors.black),
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: OnBoardingString.private_policy,
+                        style: TextStyle(
+                            color: Colors.blue[800],
+                            fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => print('Privacy Policy')),
+                    TextSpan(
+                      text: OnBoardingString.policy2,
+                    ),
+                    TextSpan(
+                        text: OnBoardingString.terms,
+                        style: TextStyle(
+                            color: Colors.blue[800],
+                            fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => print('Term')),
+                  ]),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
         ],
@@ -241,11 +247,51 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text('Didn\'t receive the code?'),
-                SizedBox(
-                  height: 10.0,
+                SizedBox(height: 5.0),
+                // Try to replace this the below widget to Rich Text
+                // We want the time will be replaced by a button when the timer is up
+                // Notice: We only allow user to send OTP request twice / day.
+
+                Row(
+                  children: <Widget>[
+                    Text(
+                      'REQUEST NEW CODE IN ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    state.isTimerFinished
+                        ? Container(
+                            width: 140.0,
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              color: Colors.black,
+                              child: Text(
+                                'Request code',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              onPressed: _maxAttempt > 0
+                                  ? () {
+                                      setState(() {
+                                        _maxAttempt -= 1;
+                                      });
+                                      context
+                                          .bloc<OnBoardingBloc>()
+                                          .add(TimerStarted());
+                                    }
+                                  : null,
+                            ),
+                          )
+                        : Text(
+                            '$minutesStr : $secondsStr',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                  ],
                 ),
-                Text('REQUEST NEW CODE IN $minutesStr : $secondsStr',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -263,7 +309,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           _pageController.nextPage(
               duration: const Duration(milliseconds: 400),
               curve: Curves.easeInOut);
-          //context.bloc<OnBoardingBloc>().add(TimerStarted(duration: 12));
+          context.bloc<OnBoardingBloc>().add(TimerStarted());
         }
       },
       builder: (context, state) {
@@ -315,7 +361,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           _buildContentPage4(state),
 
                           // Page 5
-                          //_buildContentPage5(state),
+                          _buildContentPage5(state),
                         ],
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ams/blocs/blocs.dart';
 import 'package:ams/repositories/repositories.dart';
 import 'package:ams/screens/home_screen/qr_scan_screen.dart';
@@ -22,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   QrImage(
-                    data: state.payment.transactionID,
+                    data: jsonEncode(state.payment.toEntity().toJson()),
                     version: QrVersions.auto,
                     size: 200,
                     gapless: false,

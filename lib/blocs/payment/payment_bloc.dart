@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ams/blocs/blocs.dart';
 import 'package:ams/repositories/repositories.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/semantics.dart';
+
 import 'package:meta/meta.dart';
-import 'package:ams/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'payment_event.dart';
@@ -24,36 +22,47 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Stream<PaymentState> mapEventToState(
     PaymentEvent event,
   ) async* {
-    if (event is PaymentPageStart) {
+    if (event is PaymentPageStarted) {
       yield* _mapPaymentPageStartToState();
-    } else if (event is TipSelectionChange) {
+    } else if (event is PaymentPageTipSelectionChanged) {
       yield* _mapTipSelectionChangeToState(event);
-    } else if (event is TipInputChange) {
+    } else if (event is PaymentPageTipInputChanged) {
       yield* _mapTipInputChangeToState(event);
-    } else if (event is AddPromoPressed) {
+    } else if (event is PaymentPageAddPromoPressed) {
       yield* _mapAddPromoPressedToState();
-    } else if (event is PromoSelectionChange) {
+    } else if (event is PaymentPagePromoSelectionChanged) {
       yield* _mapPromoSelectionChangeToState(event);
-    } else if (event is CardSelectionChange) {
-      yield* _mapCardSelectionChangeToState();
-    } else if (event is ConfirmPressed) {
+    } else if (event is PaymentPageCardSelectionChanged) {
+      yield* _mapCardSelectionChangeToState(event);
+    } else if (event is PaymentPageConfirmPressed) {
       yield* _mapConfirmPressedToState(event);
-    } else if (event is ChangeCardPressed) {
+    } else if (event is PaymentPageChangeCardPressed) {
       yield* _mapChangeCardPressedToState();
+    } else if (event is PaymentPagePayButtonSlided) {
+      yield* _mapPaymentPagePayButtonSlided();
     }
   }
 
   Future<Map<String, dynamic>> prefLoading() async {
     final _prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> _cardPref =
-        jsonDecode(_prefs.getString("preferred_card"));
-    print("Payment Bloc - $_cardPref");
-    return _cardPref;
+    try {
+      Map<String, dynamic> _cardPref =
+          jsonDecode(_prefs.getString("preferred_card"));
+      return _cardPref;
+    } catch (Exception) {
+      return null;
+    }
+
+    // print("Payment Bloc - $_cardPref");
+
     // Map<String, dynamic> _cardPref =
     //     jsonDecode(_prefs.getString("preferred_card"));
   }
 
   Stream<PaymentState> _mapPaymentPageStartToState() async* {
+    // The codes below are used for the sake of demo purposes.
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.clear();
     // print("PAGE START");
     // yield PaymentStateLoading();
     // yield PaymentStatePrefLoaded(cardPref: await prefLoading());
@@ -61,27 +70,50 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   }
 
   Stream<PaymentState> _mapTipSelectionChangeToState(
-      TipSelectionChange event) async* {}
+      PaymentPageTipSelectionChanged event) async* {}
 
-  Stream<PaymentState> _mapTipInputChangeToState(TipInputChange event) async* {}
+  Stream<PaymentState> _mapTipInputChangeToState(
+      PaymentPageTipInputChanged event) async* {}
 
   Stream<PaymentState> _mapAddPromoPressedToState() async* {}
 
   Stream<PaymentState> _mapPromoSelectionChangeToState(
-      PromoSelectionChange event) async* {}
+      PaymentPagePromoSelectionChanged event) async* {}
 
-  Stream<PaymentState> _mapCardSelectionChangeToState() async* {
+  Stream<PaymentState> _mapCardSelectionChangeToState(
+      PaymentPageCardSelectionChanged event) async* {
+    // Over-written new card to Pref
+    // Load pref card back
+    // Show in bottom Sheet
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.setString("preferred_card", jsonEncode(event.cardPref));
     yield PaymentStatePrefLoaded(cardPref: await prefLoading());
-    //yield PaymentStateBottom1SheetShowed();
+    yield PaymentStateBottom1SheetShowed();
+
+    // final _pref = await SharedPreferences.getInstance();
+    // _pref.setString("preferred_card", jsonEncode(event.cardPref));
   }
 
-  Stream<PaymentState> _mapConfirmPressedToState(ConfirmPressed event) async* {
-    yield PaymentStateBottom1SheetShowed();
+  Stream<PaymentState> _mapConfirmPressedToState(
+      PaymentPageConfirmPressed event) async* {
+    yield PaymentStateBottomSheetShowedUp();
     yield PaymentStatePrefLoaded(cardPref: await prefLoading());
+    yield PaymentStateBottom1SheetShowed();
   }
 
   Stream<PaymentState> _mapChangeCardPressedToState() async* {
     yield PaymentStateBottom2SheetShowed();
     // Preserved access to Repo to load user's bank cards
+  }
+
+  Stream<PaymentState> _mapPaymentPagePayButtonSlided() async* {
+    yield PaymentStateLoading();
+
+    // Stimulate delay environment
+    await Future.delayed(const Duration(seconds: 3));
+    yield PaymentStateLoaded();
+
+    //yield PaymentStatePaySuccess();
+    yield PaymentStatePayFailure();
   }
 }

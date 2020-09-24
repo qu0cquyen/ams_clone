@@ -1,6 +1,4 @@
 import 'package:ams/blocs/blocs.dart';
-import 'package:ams/repositories/home/home_repository.dart';
-import 'package:ams/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

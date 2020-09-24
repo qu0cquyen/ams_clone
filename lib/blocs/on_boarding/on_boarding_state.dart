@@ -88,11 +88,11 @@ class OnBoardingState {
 
   OnBoardingState update({bool isPhoneNumberValid, int duration}) {
     return OnBoardingState(
-      isPhoneNumberValid: isPhoneNumberValid,
+      isPhoneNumberValid: isPhoneNumberValid ?? this.isPhoneNumberValid,
       isSuccess: false,
       isFailure: false,
       isTimerFinished: false,
-      duration: duration,
+      duration: duration ?? 0,
       errorMessage: '',
     );
   }

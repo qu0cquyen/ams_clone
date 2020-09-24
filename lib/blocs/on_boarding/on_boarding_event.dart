@@ -33,17 +33,7 @@ class ContinueButtonPressed extends OnBoardingEvent {
 
 class AuthenticationCode extends OnBoardingEvent {}
 
-class TimerStarted extends OnBoardingEvent {
-  final int duration;
-
-  const TimerStarted({@required this.duration});
-
-  @override
-  List<Object> get props => [duration];
-
-  @override
-  String toString() => 'TimerStarted: $duration';
-}
+class TimerStarted extends OnBoardingEvent {}
 
 class TimerTicked extends OnBoardingEvent {
   final int duration;

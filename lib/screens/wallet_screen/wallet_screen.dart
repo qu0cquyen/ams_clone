@@ -103,7 +103,6 @@ class WalletScreen extends StatelessWidget {
                                 return BottomPopUpCardInfo(
                                   header: "Link Bank",
                                   clickAbleSubHeader: "Add",
-                                  hasTrailing: false,
                                   lstItem: _lstBankCard,
                                   onClickHeader: () {},
                                 );

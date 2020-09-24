@@ -29,10 +29,9 @@ class QrScanBloc extends Bloc<QrScanEvent, QrScanState> {
       QrScanTransactionRequest event) async* {
     yield QrScanStateLoading();
     await Future.delayed(const Duration(seconds: 3));
-    yield QrScanStateLoaded();
-
     Transaction transaction = await _transactionRepository
         .transactionInfoRetrieving(transactionID: event.transactionID);
+    yield QrScanStateLoaded();
 
     print(transaction);
 
@@ -50,10 +49,9 @@ class QrScanBloc extends Bloc<QrScanEvent, QrScanState> {
       QrScanSubmitPressed event) async* {
     yield QrScanStateLoading();
     await Future.delayed(const Duration(seconds: 3));
-    yield QrScanStateLoaded();
-
     bool paymenState = await _transactionRepository.transactionPaymentExecution(
         transactionID: event.transactionID);
+    yield QrScanStateLoaded();
 
     if (!paymenState)
       yield QrScanStatePaymentFailure(errorMessage: 'Insufficient Balances');

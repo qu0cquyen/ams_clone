@@ -1,8 +1,6 @@
 import 'package:ams/blocs/blocs.dart';
-import 'package:ams/models/transaction_model.dart';
 import 'package:ams/repositories/auth/auth_repository.dart';
 import 'package:ams/repositories/repositories.dart';
-import 'package:ams/screens/home_screen/helper_screen.dart';
 import 'package:ams/screens/screens.dart';
 import 'package:ams/util/ticker.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +38,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<PaymentBloc>(
           create: (_) => PaymentBloc(
             transactionRepository: TransactionRepository(),
-          )..add(PaymentPageStart()),
+          )..add(PaymentPageStarted()),
         ),
       ],
       child: MaterialApp(

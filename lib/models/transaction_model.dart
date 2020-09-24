@@ -37,7 +37,7 @@ class Transaction extends Equatable {
 
   @override
   String toString() => '''
-  {
+  Transaction {
     "transactionID": $transactionID, 
     "paymentID": $paymentID, 
     "provider": $provider, 

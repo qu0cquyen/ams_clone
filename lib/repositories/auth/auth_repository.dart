@@ -17,7 +17,7 @@ class AuthRepository extends BaseAuthRepository {
   Future<User> loginWithAccessToken() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    // secureStorage.deleteAll();
+    //secureStorage.deleteAll();
 
     String accessToken = await secureStorage.read(key: "accessToken");
 

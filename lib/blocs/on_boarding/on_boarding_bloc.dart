@@ -4,7 +4,6 @@ import 'package:ams/config/validators.dart';
 import 'package:ams/util/ticker.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/semantics.dart';
 import 'package:meta/meta.dart';
 
 part 'on_boarding_event.dart';
@@ -48,11 +47,11 @@ class OnBoardingBloc extends Bloc<OnBoardingEvent, OnBoardingState> {
 
   Stream<OnBoardingState> _mapTimerStartedToState(TimerStarted event) async* {
     yield state.update(duration: _duration);
-    yield OnBoardingState.timerRunInProgress(event.duration);
+    yield OnBoardingState.timerRunInProgress(_duration);
     _tickerSubscription?.cancel();
-    _tickerSubscription = _ticker.tick(tick: event.duration).listen((duration) {
-      TimerTicked(duration: event.duration);
-    });
+    _tickerSubscription = _ticker
+        .tick(tick: _duration)
+        .listen((duration) => add(TimerTicked(duration: duration)));
   }
 
   Stream<OnBoardingState> _mapTimerTickedToState(TimerTicked event) async* {
